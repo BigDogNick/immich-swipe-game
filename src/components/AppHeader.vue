@@ -94,8 +94,8 @@ function confirmResetReviewed() {
 </script>
 
 <template>
-  <header class="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
-    <div class="flex items-center gap-3">
+  <header class="px-4 py-3 max-w-4xl mx-auto w-full">
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
       <!-- Title -->
       <h1 class="text-xl font-bold sm:inline hidden"
           :class="uiStore.isDarkMode ? 'text-white' : 'text-gray-900'">
@@ -214,7 +214,7 @@ function confirmResetReviewed() {
       <!-- Stats -->
       <button
         type="button"
-        class="flex items-center gap-2 text-sm px-3 py-1 rounded-full border transition-colors"
+        class="shrink-0 whitespace-nowrap flex items-center gap-2 text-sm px-3 py-1 rounded-full border transition-colors"
         :class="uiStore.isDarkMode
           ? 'border-gray-700 text-gray-300 hover:bg-gray-800'
           : 'border-gray-200 text-gray-600 hover:bg-gray-100'"
@@ -236,10 +236,12 @@ function confirmResetReviewed() {
         </span>
       </button>
 
+      <!-- Filter chips: own scrollable row on phones, inline on wider screens -->
+      <div class="order-last w-full sm:order-none sm:w-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
       <!-- Scope button -->
       <button
         @click="emit('openScopePicker')"
-        class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors"
+        class="shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors"
         :class="hasActiveScope
           ? 'bg-purple-600 border-purple-500 text-white'
           : uiStore.isDarkMode
@@ -258,7 +260,7 @@ function confirmResetReviewed() {
       <!-- Active scope badge -->
       <span
         v-if="hasActiveScope"
-        class="px-2 py-0.5 text-xs rounded-full font-medium"
+        class="shrink-0 whitespace-nowrap px-2 py-0.5 text-xs rounded-full font-medium"
         :class="uiStore.isDarkMode ? 'bg-purple-900 text-purple-200' : 'bg-purple-100 text-purple-700'"
       >
         {{ scopeLabel }}
@@ -267,7 +269,7 @@ function confirmResetReviewed() {
       <!-- Person button -->
       <button
         @click="emit('openPersonPicker')"
-        class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors"
+        class="shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors"
         :class="hasActivePerson
           ? 'bg-cyan-600 border-cyan-500 text-white'
           : uiStore.isDarkMode
@@ -286,7 +288,7 @@ function confirmResetReviewed() {
       <!-- Active person badge -->
       <span
         v-if="hasActivePerson"
-        class="px-2 py-0.5 text-xs rounded-full font-medium"
+        class="shrink-0 whitespace-nowrap px-2 py-0.5 text-xs rounded-full font-medium"
         :class="uiStore.isDarkMode ? 'bg-cyan-900 text-cyan-200' : 'bg-cyan-100 text-cyan-700'"
       >
         {{ personLabel }}
@@ -295,7 +297,7 @@ function confirmResetReviewed() {
       <!-- Skip videos toggle -->
       <button
         @click="uiStore.toggleSkipVideos()"
-        class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors"
+        class="shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors"
         :class="uiStore.skipVideos
           ? 'bg-green-600 border-green-500 text-white'
           : uiStore.isDarkMode
@@ -319,7 +321,7 @@ function confirmResetReviewed() {
       <!-- Review order toggle -->
       <button
         @click="toggleReviewOrder"
-        class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors"
+        class="shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors"
         :class="preferencesStore.reviewOrder !== 'random'
           ? 'bg-blue-600 border-blue-500 text-white'
           : uiStore.isDarkMode
@@ -370,6 +372,10 @@ function confirmResetReviewed() {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h4M4 12h7M4 16h10M18 6v12m0 0-3-3m3 3 3-3" />
         </svg>
       </button>
+      </div>
+
+      <div class="flex-1"></div>
+
       <!-- Couples game -->
       <button
         @click="router.push('/game')"

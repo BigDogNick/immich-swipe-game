@@ -107,3 +107,12 @@ body {
   background: rgba(99, 102, 241, 0.12);
   font-size: 0.85em;
 }
+
+/* Horizontally scrollable chip rows without a visible scrollbar. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
