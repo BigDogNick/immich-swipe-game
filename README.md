@@ -7,15 +7,9 @@ Swipe-review your Immich library: right = keep, left = trash. Like a dating app,
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss)
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="960" alt="Immich Swipe home screen (sanitized demo)" />
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/mobile.png" width="260" alt="Immich Swipe mobile view (sanitized demo)" />
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/album-picker.png" width="960" alt="Album picker + hotkey mapping (sanitized demo)" />
+  <img src="docs/screenshots/home.png" width="420" alt="Immich Swipe home screen (sanitized demo)" />
+  <img src="docs/screenshots/mobile.png" width="140" alt="Immich Swipe mobile view (sanitized demo)" />
+  <img src="docs/screenshots/album-picker.png" width="420" alt="Album picker + hotkey mapping (sanitized demo)" />
 </p>
 
 > Screenshots are sanitized (no real photos or API keys).
