@@ -73,12 +73,18 @@ Open `http://localhost:5173`.
 ### Docker (recommended)
 
 ```bash
+git clone https://github.com/BigDogNick/immich-swipe-game.git
+cd immich-swipe-game
 cp env.example .env
-# edit .env (set your Immich server URL and API key)
-docker compose up --build
+# edit .env: set IMMICH_SERVER_URL (e.g. http://immich.lan:2283)
+docker compose up -d --build
 ```
 
-Open `http://localhost:2293`.
+Open `http://<host>:2293`, create an account for each person on the login page, and add each person's Immich API key in Settings.
+
+- The compose file mounts `./data` and stores accounts, sessions and couples games in `./data/immich-swipe.db`, so everything survives restarts. That file holds Immich API keys in plain text; keep it private and back it up.
+- Set `SWIPE_PUBLIC_URL` (and optionally the `SMTP_*` values) in `.env` if you want email invites, game summaries and password resets with working links.
+- To update: `git pull && docker compose up -d --build`.
 
 All configuration is read at **runtime** by the Go backend — no rebuild needed for `.env` changes. Just restart the container.
 

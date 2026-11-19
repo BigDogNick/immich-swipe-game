@@ -42,3 +42,6 @@ site/
 mobile/android/key.properties
 mobile/android/*.jks
 mobile/android/*.keystore
+
+# Docker Compose data volume (accounts, sessions, games; contains API keys)
+data/
