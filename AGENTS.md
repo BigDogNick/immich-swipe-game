@@ -100,6 +100,10 @@
   - `src/stores/ui.ts` + `src/components/LoadingOverlay.vue` + `src/components/ToastNotification.vue`
   - `src/style.css` (`overflow: hidden`, `viewport-fit` via `100dvh`, safe-area utilities)
 
+- Couples game ("Swipe together"):
+  - `server/game.go` (GameStore: one JSON row per game in table `games`; routes under `/api/game` are served locally, never proxied; votes hidden until all players voted; unanimous keep → kept, unanimous delete → Immich trash with the owner's key, mixed → disputed for the owner; owner-only `/review` + `/resolve`; `/assets/<id>/thumbnail|original` streams with owner credentials for players only; emails via `sendMailFunc`) + `server/game_test.go`
+  - `src/composables/useGame.ts`, `src/types/game.ts`, `src/views/GameListView.vue` (`/game`), `GamePlayView.vue` (`/game/:id`), `GameReviewView.vue` (`/game/:id/review`), `src/components/GameThumb.vue`; `SwipeCard` takes `mediaBase` / `hideOpenInImmich`
+
 ## Conventions for Changes
 - TypeScript is `strict` + `noUnusedLocals/noUnusedParameters` (`tsconfig.json`): clean imports/variables, otherwise the build breaks.
 - When adding new `VITE_*` variables: keep `src/vite-env.d.ts`, `env.example` and possibly `README.md` in sync.

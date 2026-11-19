@@ -132,7 +132,7 @@ function handleAlbumDrop(e: DragEvent) {
     <button
       @click="emit('undo')"
       :disabled="!canUndo"
-      class="w-16 h-16 rounded-full flex items-center justify-center transition-all active:scale-90 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
+      class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all active:scale-90 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
       :class="[
         uiStore.isDarkMode
           ? 'bg-gray-800 hover:bg-yellow-600 text-white disabled:hover:bg-gray-800'

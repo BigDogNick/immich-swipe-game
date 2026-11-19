@@ -7,15 +7,9 @@ Swipe-review your Immich library: right = keep, left = trash. Like a dating app,
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss)
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="960" alt="Immich Swipe home screen (sanitized demo)" />
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/mobile.png" width="260" alt="Immich Swipe mobile view (sanitized demo)" />
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/album-picker.png" width="960" alt="Album picker + hotkey mapping (sanitized demo)" />
+  <img src="docs/screenshots/home.png" width="420" alt="Immich Swipe home screen (sanitized demo)" />
+  <img src="docs/screenshots/mobile.png" width="140" alt="Immich Swipe mobile view (sanitized demo)" />
+  <img src="docs/screenshots/album-picker.png" width="420" alt="Album picker + hotkey mapping (sanitized demo)" />
 </p>
 
 > Screenshots are sanitized (no real photos or API keys).
@@ -28,9 +22,32 @@ Swipe-review your Immich library: right = keep, left = trash. Like a dating app,
 - Favorite toggle (press `F`)
 - Add-to-album (+ configurable `0–9` hotkeys)
 - Undo (Ctrl/⌘+Z or ↑)
+- **Swipe together**: a two-player game where you and your partner both vote on the same photos (see below)
 - Reviewed cache + stats persisted per server/user
 - Preloads the next asset
 - Optional self-hosted analytics (Umami) + OpenTelemetry browser traces/stats, configured in-app under **Settings**
+
+## Swipe together (couples game)
+
+Review a batch of photos with your partner. Tap the heart icon in the header (or open `/game`).
+
+1. The **owner** starts a game from their own library: pick the partner's Swipe username, how many photos (up to 2000), and either random photos or one album.
+2. Both players get **the same photos in a different order**, and neither sees the other's vote until both have voted.
+3. Each photo resolves once everyone has voted:
+   - both swipe right → **kept** (nothing changes in Immich)
+   - both swipe left → **moved to the Immich trash** (recoverable from Immich's trash)
+   - one left, one right → **disputed**, flagged for the owner
+4. The owner settles disputes on the **Review** screen (keep or delete). Deletes that Immich refuses also land there with a retry button.
+
+Details:
+
+- The owner is the admin. A photo is only deleted when every player agrees, or when the owner decides, so a partner can never delete the owner's photos alone.
+- Partners see the photos through game-scoped endpoints (`/api/game/<id>/assets/<assetId>/…`) that use the owner's stored Immich API key. The partner needs a Swipe account on the same Immich server, but no access to the owner's library. Only photos in that game are reachable.
+- The owner needs an Immich API key saved in Settings (the game uses it while the owner is offline). SSO-only owners work only while they have an active session.
+- Undo (↑ / Ctrl+Z) takes your vote back; if that photo had already been trashed by agreement, it is restored from the Immich trash. Owner decisions are final.
+- Email (optional, uses the existing SMTP settings): invited partners get an invite email, and the owner gets one summary email when everyone has finished, with a link to the review page. Players need an email address on their account.
+- Games are stored in `IMMICH_SESSIONS_DB` (table `games`) when it is set, otherwise in memory.
+- The game is in the web app only for now; the Flutter app in `mobile/` does not have it yet.
 
 ## Controls
 
@@ -56,12 +73,18 @@ Open `http://localhost:5173`.
 ### Docker (recommended)
 
 ```bash
+git clone https://github.com/BigDogNick/immich-swipe-game.git
+cd immich-swipe-game
 cp env.example .env
-# edit .env (set your Immich server URL and API key)
-docker compose up --build
+# edit .env: set IMMICH_SERVER_URL (e.g. http://immich.lan:2283)
+docker compose up -d --build
 ```
 
-Open `http://localhost:2293`.
+Open `http://<host>:2293`, create an account for each person on the login page, and add each person's Immich API key in Settings.
+
+- The compose file mounts `./data` and stores accounts, sessions and couples games in `./data/immich-swipe.db`, so everything survives restarts. That file holds Immich API keys in plain text; keep it private and back it up.
+- Set `SWIPE_PUBLIC_URL` (and optionally the `SMTP_*` values) in `.env` if you want email invites, game summaries and password resets with working links.
+- To update: `git pull && docker compose up -d --build`.
 
 All configuration is read at **runtime** by the Go backend — no rebuild needed for `.env` changes. Just restart the container.
 

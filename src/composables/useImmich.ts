@@ -368,8 +368,30 @@ export function useImmich() {
         body: JSON.stringify(body),
       })
 
+      // Newer Immich versions report `total` as the size of the returned page
+      // (1 here), not the number of matches. Only trust it when it is larger
+      // than the page or when there is no next page.
       const total = response?.assets?.total
-      reviewTotal.value = typeof total === 'number' ? total : null
+      const pageCount = response?.assets?.items?.length ?? 0
+      const hasMore = response?.assets?.nextPage != null
+      if (typeof total === 'number' && (total > pageCount || !hasMore)) {
+        reviewTotal.value = total
+        return
+      }
+
+      // Unfiltered library: ask Immich for the user's asset statistics.
+      const scope = preferencesStore.scope
+      if (scope.kind === 'library' && !preferencesStore.selectedPersonId) {
+        const stats = await apiRequest<{ images?: number; videos?: number; total?: number }>(
+          '/assets/statistics'
+        )
+        const count = uiStore.skipVideos ? stats?.images : stats?.total
+        reviewTotal.value = typeof count === 'number' ? count : null
+        return
+      }
+
+      // Filtered feed with no reliable count: hide the progress bar.
+      reviewTotal.value = null
     } catch (e) {
       // Non-fatal: progress is hidden when the total is unknown.
       console.error('Failed to fetch review total:', e)

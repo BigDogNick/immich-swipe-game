@@ -1,18 +1,49 @@
 # Docker Compose
+#
+#   cp env.example .env      # set IMMICH_SERVER_URL at minimum
+#   docker compose up -d --build
+#
+# Then open http://<host>:2293. Each person creates a Swipe account on the
+# login page and adds their Immich API key in Settings.
+#
+# ./data holds the SQLite database with accounts, sessions and couples games.
+# It contains Immich API keys in plain text: keep it private and back it up.
 
 services:
   immich-swipe:
     build:
       context: .
       dockerfile: Dockerfile
+    image: immich-swipe-game:local
     container_name: immich-swipe
     restart: unless-stopped
     ports:
       - "2293:8080"
+    volumes:
+      - ./data:/data
     environment:
       # Runtime configuration (no rebuild needed for changes)
       - LISTEN_ADDR=:8080
       - IMMICH_SERVER_URL=${IMMICH_SERVER_URL:-}
+
+      # Persist accounts, sessions and couples games across restarts.
+      # Without this, games disappear whenever the container restarts.
+      - IMMICH_SESSIONS_DB=${IMMICH_SESSIONS_DB:-/data/immich-swipe.db}
+
+      # External URL people use to reach Swipe (e.g. https://swipe.example.com).
+      # Used for links in emails (password reset, game review) and SSO callbacks.
+      - SWIPE_PUBLIC_URL=${SWIPE_PUBLIC_URL:-}
+
+      # Email (optional): game invites, "game finished" summaries, password
+      # reset. Can also be set later in the app's Settings instead.
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - SMTP_FROM=${SMTP_FROM:-}
+      - SMTP_TLS=${SMTP_TLS:-}
+
+      # Optional env-defined users (migrated into local accounts at startup)
       - IMMICH_API_KEY_1_NAME=${IMMICH_API_KEY_1_NAME:-}
       - IMMICH_API_KEY_1_KEY=${IMMICH_API_KEY_1_KEY:-}
       - IMMICH_API_KEY_2_NAME=${IMMICH_API_KEY_2_NAME:-}
@@ -23,21 +54,18 @@ services:
       - IMMICH_API_KEY_4_KEY=${IMMICH_API_KEY_4_KEY:-}
       - IMMICH_API_KEY_5_NAME=${IMMICH_API_KEY_5_NAME:-}
       - IMMICH_API_KEY_5_KEY=${IMMICH_API_KEY_5_KEY:-}
-      # Trmnl e-ink stats persistence (optional). Set TRMNL_STATS_FILE to a
-      # path on a mounted volume to survive container restarts, e.g.:
-      #   volumes: [ "./data:/data" ]
-      #   TRMNL_STATS_FILE=/data/trmnl-stats.json
+
+      # Trmnl e-ink stats persistence (optional), e.g. /data/trmnl-stats.json
       - TRMNL_STATS_FILE=${TRMNL_STATS_FILE:-}
-      # Session persistence (optional). Set IMMICH_SESSIONS_DB to a path on a
-      # mounted volume so logged-in users survive container restarts, e.g.:
-      #   volumes: [ "./data:/data" ]
-      #   IMMICH_SESSIONS_DB=/data/immich-swipe.db
-      # WARNING: the database contains Immich credentials (API keys / access
-      # tokens) in plain text — protect the volume accordingly.
-      - IMMICH_SESSIONS_DB=${IMMICH_SESSIONS_DB:-}
+
       # OpenTelemetry (OTLP) — leave unset to run without observability
       - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       - OTEL_EXPORTER_OTLP_PROTOCOL=${OTEL_EXPORTER_OTLP_PROTOCOL:-}
       - OTEL_SERVICE_NAME=${OTEL_SERVICE_NAME:-}
       - OTEL_RESOURCE_ATTRIBUTES=${OTEL_RESOURCE_ATTRIBUTES:-}
       - OTEL_TRACES_SAMPLER=${OTEL_TRACES_SAMPLER:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
