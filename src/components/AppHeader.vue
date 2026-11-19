@@ -370,6 +370,18 @@ function confirmResetReviewed() {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h4M4 12h7M4 16h10M18 6v12m0 0-3-3m3 3 3-3" />
         </svg>
       </button>
+      <!-- Couples game -->
+      <button
+        @click="router.push('/game')"
+        class="p-2 rounded-full transition-colors"
+        :class="uiStore.isDarkMode ? 'hover:bg-gray-800 text-pink-400' : 'hover:bg-gray-200 text-pink-600'"
+        aria-label="Swipe together"
+        title="Swipe together (couples game)"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </button>
       <!-- Settings -->
       <button
         @click="router.push('/settings')"

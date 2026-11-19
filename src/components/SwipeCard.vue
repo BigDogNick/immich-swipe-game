@@ -9,6 +9,13 @@ const props = defineProps<{
   asset: ImmichAsset
   /** Name of the selected review person; shown as a badge on the card. */
   personName?: string
+  /**
+   * Base URL for this asset's media (default `/api/assets`). The couples game
+   * passes its game-scoped endpoint so partners can view the owner's photos.
+   */
+  mediaBase?: string
+  /** Hide the "Open in Immich" button (e.g. a partner viewing someone else's library). */
+  hideOpenInImmich?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -42,7 +49,7 @@ const assetPageUrl = computed(() => {
     return ''
   }
 })
-const canOpenInImmich = computed(() => assetPageUrl.value.length > 0)
+const canOpenInImmich = computed(() => !props.hideOpenInImmich && assetPageUrl.value.length > 0)
 
 // composable
 const { isSwiping, swipeOffset, swipeDirection } = useSwipe(cardRef, {
@@ -99,7 +106,8 @@ function configureInlinePlayback(video: HTMLVideoElement) {
 
 function buildAssetApiUrl(path: string): string {
   const normalizedPath = path.startsWith('/') ? path.slice(1) : path
-  return `/api/assets/${props.asset.id}/${normalizedPath}`
+  const base = (props.mediaBase || '/api/assets').replace(/\/$/, '')
+  return `${base}/${encodeURIComponent(props.asset.id)}/${normalizedPath}`
 }
 
 function getAuthHeaders(): Record<string, string> {
@@ -410,6 +418,7 @@ const personBadgeLabel = computed(() => {
     >
       <div class="flex items-start gap-3">
         <button
+          v-if="!hideOpenInImmich"
           type="button"
           class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black/40 text-white shadow-lg backdrop-blur-sm transition hover:bg-black/60 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 shrink-0"
           :disabled="!canOpenInImmich"

@@ -509,6 +509,7 @@ type Server struct {
 	session   *SessionStore
 	accounts  *AccountStore
 	stats     *StatsStore
+	games     *GameStore
 	transport http.RoundTripper // optional instrumented transport for the reverse proxy
 	// In-progress OAuth logins (state -> pending) and single-use browser
 	// handoff codes (code -> session), both short-lived and in-memory only.
@@ -529,6 +530,7 @@ func NewServer(cfg Config) *Server {
 	// accounts so existing users keep working.
 	s.session = NewSessionStore(cfg.SessionDBFile)
 	s.accounts = NewAccountStore(s.session.db, cfg.Users, cfg.ServerURL)
+	s.games = NewGameStore(s.session.db)
 	s.ensureDemoAccount()
 	// Restore persisted stats on startup when a stats file is configured.
 	// On any file error we log a warning and continue with in-memory only.
@@ -634,6 +636,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Public Trmnl e-ink polling endpoint. Registered before the /api/
 		// proxy catch-all so it is served locally and never proxied to Immich.
 		s.trmnlStatsHandler(w, r)
+
+	case path == "/api/game" || strings.HasPrefix(path, "/api/game/"):
+		// Couples game: served locally, never proxied to Immich.
+		s.authMiddleware(http.HandlerFunc(s.gameHandler)).ServeHTTP(w, r)
 
 	case strings.HasPrefix(path, "/api/"):
 		s.authMiddleware(http.HandlerFunc(s.proxyHandler)).ServeHTTP(w, r)
